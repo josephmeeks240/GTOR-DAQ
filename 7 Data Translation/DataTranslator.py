@@ -18,18 +18,24 @@ maxPr = 0
 maxIn = 0
 currTime = 0
 tempTime = 0
+numTeeth = 30 #TEMPORARY!!!!!!!!!!!!!#
 findAvg = False
-anaStart = 0
-anaEnd = 0
+#
 avg_value = 0
-
+anaStart = 0
+anaEnd = 5
 def process_analog_sensor(sensor, dataBuffer, start, end):
+    sum_values = 0
+    for i in range(start, end):
+        if sensor.index + 1 < len(dataBuffer[i]):  # Ensure index is within bounds
+            sum_values += float(dataBuffer[i][sensor.index + 1])
+        else:
+            #print(f"Warning: sensor index {sensor.index + 1} is out of range for dataBuffer row {i}")
+            return None  # or handle as needed
 
-    sum_values = sum(float(dataBuffer[i][sensor.index + 1]) for i in range(start, end))
-    average_value = sum_values / (end-start)
-    print(f"New Analog Average: {average_value}.")
+    average_value = sum_values / (end - start)
+    #print(f"New Analog Average: {average_value}.")
     return average_value
-
 def process_digital_sensor(sensor, current_value, last_value, last_time, current_time):
     time_diff = current_time - last_time  # Calculate time difference using timestamps
 
@@ -45,7 +51,6 @@ header = file.readline()  # Read header
 data = file.readlines()  # Read sensor data
 
 
-
 for line in data:
     lineList = line.strip().split(",")
     sensorList.append(Sensor(lineList[0], lineList[1], lineList[2], lineList[3], lineList[4]))
@@ -53,7 +58,6 @@ for line in data:
         maxPr = int(lineList[3])
         maxIn = lineList[0]
 file.close()
-
 last_values = [0] * len(sensorList)  # Initialize to match the number of sensors
 last_times = [0] * len(sensorList)
 
@@ -94,7 +98,7 @@ fileCount = 0
 andrewsBool = False
 
 # Process each data entry
-
+dataBuffer = [[0 for x in range(len(sensorList) + 1)] for x in range(len(newData))]
 
 for entry in newData:
     entryList = entry.strip().split(",")
@@ -106,26 +110,23 @@ for entry in newData:
         if len(entryList) > i + 2:  # Ensure there are enough elements in entryList
             current_value = entryList[i + 2].strip()  # The current value from the input file, with whitespace removed
         else:
-            print(f"Warning: Not enough data for sensor {sensor.name}. Skipping entry.")
+            #print(f"Warning: Not enough data for sensor {sensor.name}. Skipping entry.")
             continue  # Skip this iteration if there's not enough data
 
         if sensor.pollingRate < maxPr:  #sensor's polling rate is less than max
             if (currTime + timeSensor) < dataBuffer[fileCount][0]: #if the current time + next increment of the sensor < buffer
                 currTime += timeSensor #update current time by the next polling rate's increment
-                print(f"The current time for the sensor is {currTime}")
+                #print(f"The current time for the sensor is {currTime}")
         else: #sensor is max polling rate so it reads or slower sensor is being updated
             currTime += timeSensor
-            print(f"The current time for the {sensor.name} sensor is {currTime}")
+            #print(f"The current time for the {sensor.name} sensor is {currTime}")
             findAvg = True
-            anaEnd = fileCount #shows where the sensor gets updated so avg can be found
-
 
         if sensor.dataType == 'analog':
             # Process analog sensor
-            if findAvg:
-                avg_value = process_analog_sensor(sensor, dataBuffer, anaStart, anaEnd)
-                findAvg = False
-            dataBuffer[fileCount][i + 1] = avg_value
+            avg_value = process_analog_sensor(sensor, dataBuffer, anaStart, anaEnd)
+            if avg_value is not None:
+                dataBuffer[fileCount][i + 1] = avg_value
         elif sensor.dataType == 'digital':
             try:
                 # Convert current_value to an integer after stripping spaces
@@ -136,18 +137,18 @@ for entry in newData:
                 last_values[i] = int(current_value)  # Update the last value for this sensor
                 last_times[i] = currTime  # Update the last time for this sensor
             except ValueError as e:
-                print(f"Error processing digital sensor {sensor.name} at index {i}: {e}")
-                print(f"Current value: {current_value}")
+                #print(f"Error processing digital sensor {sensor.name} at index {i}: {e}")
+                #print(f"Current value: {current_value}")
                 continue  # Skip this iteration if there's an error with the data
 
         counterList[i][0] += 1  # Increment the polling counter for each sensor
 
-    print(dataBuffer[fileCount])  # Print current buffer line
-    print(fileCount)
+    #print(dataBuffer[fileCount])  # Print current buffer line
+    #print(fileCount)
 
     fileCount += 1
 
-
+print(newData[:5]) # TEST PRINT
 print(dataBuffer[0:100])  # Print first 100 rows of data buffer
 
 # Write data buffer to file
