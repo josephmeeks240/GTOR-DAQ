@@ -55,46 +55,9 @@ def copy_with_progress(src, dst):
                 numMegs += 1
             
     
-def DownloadDataFile():
+def DownloadDataFile(filePath):
     originalDirectory = os.getcwd()
-    driveLetter = ""
-    while True:
-            driveLetter = input("Please type the drive letter for your MechE network drive.\n")
-            try:
-                    os.chdir(driveLetter+":")
-                    break
-            except:
-                    print("Something went wrong. Please make sure you're signed into the mechE drive.")
-    while True:
-        directory = os.getcwd()
-        print(os.listdir())  # List files in the directory
-        newFolder = input("Please type the name of the folder you would like to navigate to or type DEFAULT to skip to the current season's data folder. Type STOP when you've found the data file you're looking for.\n")
-        if newFolder == "STOP":
-            break
-        elif newFolder == "DEFAULT":
-            try:
-                os.chdir(originalDirectory + "/DataDownloader/Config")
-                config = open("config.txt")
-                lines = config.readlines()
-                filePath = lines[1].replace("~?~", driveLetter)
-                os.chdir(filePath)
-            except:
-                print("Something went wrong. Please try manually navigating to the file.")
-                os.chdir(directory)
-        else:
-            try:
-                full_path = os.path.join(directory, newFolder)
-                os.chdir(full_path)
-            except:
-                print("IMPROPER FILENAME UR BAD KID")
-    while True:
-        fileName = input("What file would you like to read from?\n")
-        if os.path.isfile(os.getcwd() + "/"+ fileName):
-            break
-        else: 
-            print("IMPROPER FILENAME UR BAD KID")
-    print("Copying data to temporary local file.")
-    copy_with_progress(os.getcwd() + "/" + fileName, originalDirectory + "/temp.txt")
+    copy_with_progress(filePath, originalDirectory + "/temp.txt")
     print("Opening local temp file.")
     os.chdir(originalDirectory)
     fileToRead = open("temp.txt","r")

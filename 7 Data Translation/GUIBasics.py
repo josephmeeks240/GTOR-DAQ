@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
+import os
+
+os.cd("../")
+from DataDownloader import DataDownloader
 
 # Create the main window
 root = tk.Tk()

@@ -34,7 +34,7 @@ timeController = ""
 lastAnalogIndex = 0
 
 # Read config file
-file = open("Config/config.txt")
+file = open("../Config/Config.txt")
 # Read header
 header = file.readline()
 # Read sensor data
