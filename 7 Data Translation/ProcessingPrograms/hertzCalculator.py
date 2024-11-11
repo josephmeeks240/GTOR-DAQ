@@ -31,11 +31,7 @@ def mode1(fileToRead):
     print(str(len(timeStampDataPoints))+ " : numSeconds")
     print(str(minRefresh) + ": minRefreshRate")
 
-fileToRead = DataDownloader.DownloadDataFile()
-print("Parsing local file.")
-mode1(fileToRead)
-print("Deleting local file.")
-fileToRead.close()
-os.remove("temp.txt")
-input("Hit enter to close window")
+def calculateHertz(inputFile):
+    mode1(inputFile)
+    fileToRead.close()
         

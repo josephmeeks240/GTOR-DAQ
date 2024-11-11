@@ -2,9 +2,7 @@ import shutil
 import os
 import time
 #handles data download and includes basic progress bar
-def copy_with_progress(src, dst):
-    #finds file size
-    fileSize = os.path.getsize(src)
+def downloadData(src, dst):
     #sets oldTime
     oldTime = time.time()
     #initializes a variable to keep track of last download speed
@@ -44,21 +42,21 @@ def copy_with_progress(src, dst):
                 previousDownloadSpeed = downloadSpeed
             except:
                 downloadSpeed = float(inf)
-            #calculate download percentage
-            percentage = round((copied/fileSize * 100), 2)
-            #print progress bar
-            print("Downloading: " + str(percentage) + "% at " + str(downloadSpeed) + "MB/s")
-            #update old time
-            oldTime = time.time()
             #increments numMegs to try and find optimum download rate
             if not wait:
                 numMegs += 1
-            
+
+def updateProgressBar(src, dst, progressBar, progressBarPage, label, parentPage):
+    sourceFileSize = os.path.getsize(src)
+    while os.path.getsize(dst) != sourceFileSize:
+        percentage = os.path.getsize(dst)/sourceFileSize * 100
+        progressBar["value"] = percentage
+        label.config(text = str("Download Progress " + str(round(percentage,2)) + "%"))
+        label.pack()
+        progressBar.pack()
+        progressBarPage.update()
+    progressBarPage.destroy()
+    parentPage.deiconify()
     
-def DownloadDataFile(filePath):
-    originalDirectory = os.getcwd()
-    copy_with_progress(filePath, originalDirectory + "/temp.txt")
-    print("Opening local temp file.")
-    os.chdir(originalDirectory)
-    fileToRead = open("temp.txt","r")
-    return fileToRead
+    
+            
