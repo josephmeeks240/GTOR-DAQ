@@ -38,10 +38,11 @@ def openDataDownloaderTool():
         updateButtons()
 
     def updateButtons():
-        for widget in second_page.winfo_children():
-                if isinstance(widget, tk.Button):
-                        if widget["text"] != "Choose File":
-                                widget.grid_forget()
+        for frame in second_page.winfo_children():
+            if isinstance(frame, tk.Frame):
+                for widget in frame.winfo_children():
+                    if widget["text"] != "Choose File":
+                            widget.grid_forget()
         if ('filePath' in globals()):
                 if "C:/" not in filePath:
                         button4.grid(row=0, column=1, padx=20)
@@ -62,6 +63,8 @@ def openDataDownloaderTool():
         progressBar = ttk.Progressbar(progressBarPage, mode = "determinate", maximum=100)
         progressBar.pack(padx=20, pady=20, fill="x")
         destinationFilePath = str(os.getcwd()+ "\\"+ os.path.basename(filePath))
+        file = open(os.path.basename(destinationFilePath), "a")
+        file.close()
         #use multithreading to have download run in background while gui still updates in foreground
         downloadThread = threading.Thread(target = DataDownloader.downloadData, args = (filePath, destinationFilePath))
         progressBarThread = threading.Thread(target = DataDownloader.updateProgressBar, args = (filePath, destinationFilePath, progressBar, progressBarPage, label, second_page))
@@ -69,6 +72,15 @@ def openDataDownloaderTool():
         progressBarThread.start()
         second_page.withdraw()
         updateButtons()
+        configDST = os.getcwd() + "\\Configs\\" + os.path.basename(filePath)+ "Config.txt"
+        file = open(configDST, "w")
+        file.close()
+        configSRCLIST = filePath.split("/")
+        configSRCLIST[-1] = "Config.txt"
+        configSRC = "/".join(configSRCLIST)
+        sourceFileSize = os.path.getsize(configSRC)
+        configDownloadThread = threading.Thread(target = DataDownloader.downloadData, args = (configSRC, configDST))
+        configDownloadThread.start()
 
     def processData():
         progressBarPage = tk.Toplevel(second_page)
@@ -81,9 +93,21 @@ def openDataDownloaderTool():
         dataProcessingThread = threading.Thread(target = DataTranslator.translateData, args = (filePath, progressBar, progressBarPage, label, second_page)) 
         dataProcessingThread.start()
         second_page.withdraw()
+        
+
+    def calculateHertz():
+        hertzCalculationPage = tk.Toplevel(second_page)
+        hertzCalculationPage.title("Hertz Calculator")
+        hertzCalculationPage.geometry("400x200")
+        hertzCalculatorThread = threading.Thread(target = hertzCalculator.calculateHertz, args = (filePath, hertzCalculationPage)) 
+        hertzCalculatorThread.start()
+
     # Function to run when each button on the second page is clicked
-    def on_second_button_click(number):
-        print(f"Second Page Button {number} clicked!")
+    def editConfig():
+        configFilePathList = filePath.split("/")
+        configFilePathList[-1] = "Configs/" + configFilePathList[-1] + "Config.txt"
+        configFilePath = "/".join(configFilePathList)
+        os.system(f'notepad.exe {configFilePath}')
 
     # File upload section
     file_upload_button = tk.Button(second_page, text="Choose File", command=chooseFile)
@@ -98,8 +122,8 @@ def openDataDownloaderTool():
     # Create and place the buttons in a single row on the second page
     button4 = tk.Button(second_frame, text="Download Data File (Recommended as it should make data processing faster)", command=lambda: downloadData())
     button5 = tk.Button(second_frame, text="Process Data", command=lambda: processData())
-    button6 = tk.Button(second_frame, text="Edit Config", command=lambda: on_second_button_click(5))
-    button7 = tk.Button(second_frame, text="Calculate Hertz Info", command=lambda: ProcessingPrograms.HertzCalculator.calculateHertz)
+    button6 = tk.Button(second_frame, text="Edit Config", command=lambda: editConfig())
+    button7 = tk.Button(second_frame, text="Calculate Hertz Info", command=lambda: calculateHertz())
     updateButtons()
 
 # Create labels and buttons on the main page in a single row

@@ -45,8 +45,22 @@ def downloadData(src, dst):
             #increments numMegs to try and find optimum download rate
             if not wait:
                 numMegs += 1
+        
 
 def updateProgressBar(src, dst, progressBar, progressBarPage, label, parentPage):
+    #I dunno why but seems like different paths use different file delimiters
+    basePath = os.getcwd()
+    #configDST = basePath + "\\Configs\\" + os.path.basename(src)+ "Config.txt"
+    #file = open(configDST, "w")
+    #file.close()
+    #configSRCLIST = src.split("/")
+    #configSRCLIST[-1] = "Config.txt"
+    #configSRC = "/".join(configSRCLIST)
+    #sourceFileSize = os.path.getsize(configSRC)
+    #downloadData(configDST, configSRC)
+    #creats a file so the attempt to get it's size doesn't create problems
+    file = open(os.path.basename(dst), "a")
+    file.close()
     sourceFileSize = os.path.getsize(src)
     while os.path.getsize(dst) != sourceFileSize:
         percentage = os.path.getsize(dst)/sourceFileSize * 100
@@ -55,8 +69,10 @@ def updateProgressBar(src, dst, progressBar, progressBarPage, label, parentPage)
         label.pack()
         progressBar.pack()
         progressBarPage.update()
+    #in the future maybe add a pop-up that lets people choose if they want to replace the old Config file or not'
     progressBarPage.destroy()
     parentPage.deiconify()
+    
     
     
             

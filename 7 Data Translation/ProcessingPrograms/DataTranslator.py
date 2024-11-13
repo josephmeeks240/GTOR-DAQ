@@ -5,7 +5,6 @@ import math
 import importlib
 
 os.chdir("./")
-print(os.listdir())
 
 #imports all data libraries from ConversionLibrary folder
 for fileName in os.listdir("ConversionLibraries"):
@@ -46,7 +45,8 @@ def translateData (inputFilePath, progressBar, progressBarPage, label, parentPag
         lastAnalogIndex = 0
 
         # Read config file
-        file = open("Config/config.txt")
+        configFileName = os.path.basename(inputFilePath)+"Config.txt"
+        file = open("Configs/" + configFileName)
         # Read header
         header = file.readline()
         # Read sensor data
@@ -164,12 +164,7 @@ def translateData (inputFilePath, progressBar, progressBarPage, label, parentPag
                 break
             outfile.write(str(dataBuffer[i]).replace('[','').replace(']','')+"\n")
         inFile.close()
-        try:
-            os.remove("temp.txt")
-        except:
-            print("File deletion failed.")
         outfile.close()
-        print("Finished analog averaging!")
         outFile = open("output.txt", "r")
         finalOutFile = open("finalOutput.csv", "w")
         counter = 0
@@ -208,6 +203,7 @@ def translateData (inputFilePath, progressBar, progressBarPage, label, parentPag
             os.remove("output.txt")
         except:
             print("File deletion failed.")
+        progressBarPage.destroy()
         parentPage.deiconify()
 
                     
